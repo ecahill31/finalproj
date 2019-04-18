@@ -1,0 +1,111 @@
+<html>
+<head>
+<title>mousepheno_r.md</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #a9b7c6;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #cc7832; font-weight: bold;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+mousepheno_r.md</font>
+</center></td></tr></table>
+<pre><span class="s0">I oversee a project that makes knockout mice and phenotypes them.</span>
+Specifically, a gene is deleted <span class="s1">(</span><span class="s0">e.g., Fbxo7</span><span class="s1">)</span><span class="s0">, mice are bred up </span><span class="s1">(</span><span class="s0">7M + 7F KOs</span><span class="s1">)</span>
+<span class="s0">and then examined using clinical assays to detect “phenodeviants.”</span>
+The grantees on the project have developed an R package to analyze the
+phenotype data. The package has a variety of models, tests, and graphical
+outputs.
+For the class project I analyzed the red blood cell counts of Fbxo7
+knockouts. I installed Phenstat from Bioconductor, downloaded a dataset, made
+some minor alterations <span class="s1">(</span><span class="s0">change “Weight” from factor to numeric, changed</span>
+factor level name for Genotype<span class="s1">)</span><span class="s0">, ran the testDataset function, output the</span>
+summary, and ran the boxplotSexGenotype function to generate a boxplot.
+
+<span class="s2">1) </span><span class="s0">Install and load Phenstat</span>
+<span class="s2">2) </span><span class="s0">Read in a dataset</span>
+<span class="s2">3) </span><span class="s0">Manipulate a dataset</span>
+
+library<span class="s1">(</span><span class="s0">PhenStat</span><span class="s1">)</span>
+<span class="s0">PhenFbxo7RBC </span><span class="s1">&lt;</span><span class="s0">-</span>
+data.frame<span class="s1">(</span><span class="s0">read.csv</span><span class="s1">(&quot;http://www.mousephenotype.org/data/exportraw?phenotyping_center</span><span class="s0">=</span>
+WTSI&amp;parameter_stable_id=IMPC_HEM_002_001&amp;allele_accession_id=MGI<span class="s1">:</span><span class="s0">4842259&amp;strain=MGI</span><span class="s1">:</span>
+<span class="s0">2159965&amp;pipeline_stable_id=MGP_001&amp;&amp;zygosity=homozygote&amp;</span><span class="s1">&quot;))</span>
+<span class="s2">#</span><span class="s0">change Weight from factor to numeric</span>
+PhenFbxo7RBC<span class="s1">[</span><span class="s0">, </span><span class="s1">&quot;</span><span class="s0">Weight</span><span class="s1">&quot;] &lt;</span><span class="s0">- as.numeric</span><span class="s1">(</span><span class="s0">as.character</span><span class="s1">(</span><span class="s0">PhenFbxo7RBC</span><span class="s1">[</span><span class="s0">,</span><span class="s1">&quot;</span><span class="s0">Weight</span><span class="s1">&quot;]))</span>
+<span class="s2">## </span><span class="s0">Warning</span><span class="s1">: </span><span class="s0">NAs introduced by coercion</span>
+<span class="s2">#</span><span class="s0">convert </span><span class="s1">&quot;</span><span class="s0">MEBV</span><span class="s1">&quot;&quot; </span><span class="s0">to </span><span class="s1">&quot;</span><span class="s0">KO/KO</span><span class="s1">&quot; </span><span class="s0">in Genotype column</span>
+levels<span class="s1">(</span><span class="s0">PhenFbxo7RBC$Genotype</span><span class="s1">)[</span><span class="s0">levels</span><span class="s1">(</span><span class="s0">PhenFbxo7RBC$Genotype</span><span class="s1">)</span><span class="s0">==</span><span class="s1">&quot;</span><span class="s0">MEBV</span><span class="s1">&quot;] &lt;</span><span class="s0">- </span><span class="s1">&quot;</span><span class="s0">KO/KO</span><span class="s1">&quot;</span>
+<span class="s2"># </span><span class="s0">PhenList cleans the dataframe</span>
+pl <span class="s1">&lt;</span><span class="s0">- PhenList</span><span class="s1">(</span><span class="s0">PhenFbxo7RBC, testGenotype =</span><span class="s1">&quot;</span><span class="s0">KO/KO</span><span class="s1">&quot; )</span>
+<span class="s2">## </span><span class="s0">Warning</span><span class="s1">:</span>
+<span class="s2">## </span><span class="s0">Dataset</span><span class="s1">'</span><span class="s0">s column </span><span class="s1">'</span><span class="s0">Assay.Date</span><span class="s1">' </span><span class="s0">has been renamed to </span><span class="s1">'</span><span class="s0">Batch</span><span class="s1">' </span><span class="s0">and will be used for the</span>
+batch effect modelling.
+<span class="s2">## </span><span class="s0">Information</span><span class="s1">:</span>
+<span class="s2">## </span><span class="s0">Dataset</span><span class="s1">'</span><span class="s0">s </span><span class="s1">'</span><span class="s0">Genotype</span><span class="s1">' </span><span class="s0">column has following values</span><span class="s1">: '</span><span class="s0">+/+</span><span class="s1">'</span><span class="s0">, </span><span class="s1">'</span><span class="s0">KO/KO</span><span class="s1">'</span>
+<span class="s2">## </span><span class="s0">Information</span><span class="s1">:</span>
+<span class="s2">## </span><span class="s0">Dataset</span><span class="s1">'</span><span class="s0">s </span><span class="s1">'</span><span class="s0">Sex</span><span class="s1">' </span><span class="s0">column has following value</span><span class="s1">(</span><span class="s0">s</span><span class="s1">): '</span><span class="s0">Female</span><span class="s1">'</span><span class="s0">, </span><span class="s1">'</span><span class="s0">Male</span><span class="s1">'</span>
+
+<span class="s2">4) </span><span class="s0">Do statistical test on a dataset</span>
+
+TestFb7RBC <span class="s1">&lt;</span><span class="s0">- testDataset</span><span class="s1">(</span><span class="s0">pl, depVariable = </span><span class="s1">&quot;</span><span class="s0">Value</span><span class="s1">&quot;)</span>
+<span class="s2">## </span><span class="s0">Information</span><span class="s1">:</span>
+<span class="s2">## </span><span class="s0">Dependent variable</span><span class="s1">: '</span><span class="s0">Value</span><span class="s1">'</span><span class="s0">.</span>
+<span class="s2">## </span><span class="s0">Information</span><span class="s1">:</span>
+<span class="s2">## </span><span class="s0">Perform all MM framework stages</span><span class="s1">: </span><span class="s0">startModel and finalModel.</span>
+<span class="s2">## </span><span class="s0">Information</span><span class="s1">:</span>
+<span class="s2">## </span><span class="s0">Method</span><span class="s1">: </span><span class="s0">Mixed Model framework.</span>
+<span class="s2">## </span><span class="s0">Information</span><span class="s1">:</span>
+<span class="s2">## </span><span class="s0">Equation</span><span class="s1">: '</span><span class="s0">withWeight</span><span class="s1">'</span><span class="s0">.</span>
+<span class="s2">## </span><span class="s0">Information</span><span class="s1">:</span>
+<span class="s2">## </span><span class="s0">Calculated values for model effects are</span><span class="s1">: </span><span class="s0">keepBatch=TRUE, keepEqualVariance=TRUE, keepWeight=TRUE,</span>
+keepSex=FALSE, keepInteraction=TRUE.
+summaryOutput<span class="s1">(</span><span class="s0">TestFb7RBC</span><span class="s1">)</span>
+<span class="s2">##</span>
+## <span class="s0">Test for dependent variable</span><span class="s1">:</span>
+<span class="s2">## </span><span class="s1">*** </span><span class="s0">Value </span><span class="s1">***</span>
+<span class="s2">##</span>
+## <span class="s0">Method</span><span class="s1">:</span>
+<span class="s2">## </span><span class="s1">*** </span><span class="s0">Mixed Model framework </span><span class="s1">***</span>
+<span class="s2">## </span><span class="s0">----------------------------------------------------------------------------</span>
+<span class="s2">## </span><span class="s0">Model Output</span>
+<span class="s2">## </span><span class="s0">----------------------------------------------------------------------------</span>
+<span class="s2">## </span><span class="s0">Final fitted model</span><span class="s1">: </span><span class="s0">Value </span><span class="s1">~ </span><span class="s0">Sex + Genotype</span><span class="s1">:</span><span class="s0">Sex + Weight</span>
+<span class="s2">## </span><span class="s0">Was batch significant? TRUE</span>
+<span class="s2">## </span><span class="s0">Was variance equal? TRUE</span>
+<span class="s2">## </span><span class="s0">Genotype p-value</span><span class="s1">: </span><span class="s0">2.461476e-21</span>
+<span class="s2">## </span><span class="s0">Genotype by male effect</span><span class="s1">: </span><span class="s0">-2.170103e+00 +/- 2.416023e-01</span>
+<span class="s2">## </span><span class="s0">Genotype by female effect</span><span class="s1">: </span><span class="s0">-1.245927e+00 +/- 2.374242e-01</span>
+<span class="s2">## </span><span class="s0">Was there evidence of sexual dimorphism? yes </span><span class="s1">(</span><span class="s0">p-value 3.966791e-03</span><span class="s1">)</span>
+<span class="s2">## </span><span class="s0">Genotype percentage change Female</span><span class="s1">: </span><span class="s0">-11.41%</span>
+<span class="s2">## </span><span class="s0">Genotype percentage change Male</span><span class="s1">: </span><span class="s0">-19.87%</span>
+<span class="s2">##</span>
+## <span class="s0">----------------------------------------------------------------------------</span>
+<span class="s2">## </span><span class="s0">Classification Tag</span>
+<span class="s2">## </span><span class="s0">----------------------------------------------------------------------------</span>
+<span class="s2">## </span><span class="s0">With phenotype threshold value 0.01 - different size as males greater</span>
+<span class="s2">##</span>
+## <span class="s0">----------------------------------------------------------------------------</span>
+<span class="s2">## </span><span class="s0">Model Output Summary</span>
+<span class="s2">## </span><span class="s0">----------------------------------------------------------------------------</span>
+<span class="s2">## </span><span class="s0">Value Std.Error DF t-value</span>
+<span class="s2">## </span><span class="s1">(</span><span class="s0">Intercept</span><span class="s1">) </span><span class="s0">10.43321240 0.097604540 2687 106.8926958</span>
+<span class="s2">## </span><span class="s0">SexMale -0.02773634 0.030301085 2687 -0.9153579</span>
+<span class="s2">## </span><span class="s0">Weight 0.01795439 0.003676673 2687 4.8833237</span>
+<span class="s2">## </span><span class="s0">SexFemale</span><span class="s1">:</span><span class="s0">GenotypeKO/KO -1.24592701 0.237424181 2687 -5.2476837</span>
+<span class="s2">## </span><span class="s0">SexMale</span><span class="s1">:</span><span class="s0">GenotypeKO/KO -2.17010343 0.241602280 2687 -8.9821314</span>
+<span class="s2">## </span><span class="s0">p-value</span>
+<span class="s2">## </span><span class="s1">(</span><span class="s0">Intercept</span><span class="s1">) </span><span class="s0">0.000000e+00</span>
+<span class="s2">## </span><span class="s0">SexMale 3.600859e-01</span>
+<span class="s2">## </span><span class="s0">Weight 1.104251e-06</span>
+<span class="s2">## </span><span class="s0">SexFemale</span><span class="s1">:</span><span class="s0">GenotypeKO/KO 1.660369e-07</span>
+<span class="s2">## </span><span class="s0">SexMale</span><span class="s1">:</span><span class="s0">GenotypeKO/KO 4.880124e-19</span>
+
+<span class="s2">5) </span><span class="s0">Make a graph from the data</span>
+boxplotSexGenotype<span class="s1">(</span><span class="s0">pl, depVariable = </span><span class="s1">&quot;</span><span class="s0">Value</span><span class="s1">&quot;)</span></pre>
+</body>
+</html>
